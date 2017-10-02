@@ -67,8 +67,20 @@ def get_cluster_info(host, port, ignore_cluster_errors=False):
     try:
         for node in ls[2].split(b' '):
             host, ip, port = node.split(b'|')
-            nodes.append('{0}:{1}'.format(smart_text(ip or host),
-                                        smart_text(port)))
+            try:
+                # Attempt to connect to node
+                node_conn = Telnet(ip or host, port, timeout=3)
+            except:
+                # Couldn't connect to node intime, do not add to list
+                continue
+            else:
+                node_conn.close()
+                nodes.append(
+                    '{0}:{1}'.format(
+                        smart_text(ip or host),
+                        smart_text(port)
+                    )
+                )
     except ValueError:
         raise WrongProtocolData(cmd, res)
     return {
