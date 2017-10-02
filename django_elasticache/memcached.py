@@ -61,6 +61,7 @@ class ElastiCache(PyLibMCCache):
         """clear internal cache with list of nodes in cluster"""
         if hasattr(self, '_cluster_nodes_cache'):
             del self._cluster_nodes_cache
+            del self._client
 
     def get_cluster_nodes(self):
         """
