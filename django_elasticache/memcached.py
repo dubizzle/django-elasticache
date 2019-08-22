@@ -1,11 +1,15 @@
 """
 Backend for django cache
 """
+import logging
 import socket
 from functools import wraps
 from django.core.cache import InvalidCacheBackendError
 from django.core.cache.backends.memcached import PyLibMCCache
 from .cluster_utils import get_cluster_info
+
+
+logger = logging.getLogger(__name__)
 
 
 def invalidate_cache_after_error(f):
@@ -16,7 +20,8 @@ def invalidate_cache_after_error(f):
     def wrapper(self, *args, **kwds):
         try:
             return f(self, *args, **kwds)
-        except Exception:
+        except Exception as e:
+            logger.exception('cache.%s failed with args: %s', f.__name__, args)
             self.clear_cluster_nodes_cache()
             raise
     return wrapper
